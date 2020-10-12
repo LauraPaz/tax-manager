@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using tax_manager;
 using tax_manager.model;
+using tax_manager.Repositories;
 
 namespace tax_manager.Controllers
 {
@@ -14,113 +15,68 @@ namespace tax_manager.Controllers
     [Route("api/[controller]")]
     public class MunicipalitiesController : ControllerBase
     {
-        private readonly TaxManagerContext _context;
+        private readonly IMunicipalityRespository _repo;
 
-        public MunicipalitiesController(TaxManagerContext context)
+        public MunicipalitiesController(IMunicipalityRespository repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
-        // GET: api/Municipalities/test
+        // GET: api/municipalities/test
         [HttpGet("test")]
-        public async Task<ActionResult<Municipality>> GetTest()
+        public ActionResult<Municipality> GetTest()
         {
-            return new Municipality("name", new List<Tax>(), new List<Tax>(), new List<Tax>(), new List<Tax>());
+            return Ok(_repo.GetTest());
         }
 
-        // GET: api/Municipalities
+        // GET: api/municipalities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Municipality>>> GetMunicipalities()
+        public ActionResult<List<Municipality>> GetMunicipalities()
         {
-            return await _context.Municipalities
-                .Include(m => m.YearlyTaxes)
-                .Include(m => m.MonthlyTaxes)
-                .Include(m => m.WeeklyTaxes)
-                .Include(m => m.DailyTaxes)
-                .ToListAsync();
+            return Ok(_repo.GetMunicipalities());
         }
 
-        // GET: api/Municipalities/5
+        // GET: api/municipalities/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Municipality>> GetMunicipality(long id)
+        public ActionResult<Municipality> GetMunicipality(long id)
         {
-            var municipality = await _context.Municipalities
-                .Include(m => m.YearlyTaxes)
-                .Include(m => m.MonthlyTaxes)
-                .Include(m => m.WeeklyTaxes)
-                .Include(m => m.DailyTaxes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var municipality = _repo.GetMunicipality(id);
 
-            if (municipality == null)
-            {
-                return NotFound();
-            }
-
-            return municipality;
+            return Ok(municipality);
         }
 
-        // PUT: api/Municipalities/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        // PUT: api/municipalities/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMunicipality(long id, Municipality municipality)
+        public ActionResult<Municipality> PutMunicipality(long id, Municipality municipality)
         {
-            if (id != municipality.Id)
-            {
-                return BadRequest();
-            }
+            var updatedMunicipality = _repo.PutMunicipality(id, municipality);
 
-            _context.Entry(municipality).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MunicipalityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(updatedMunicipality);
         }
 
-        // POST: api/Municipalities
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        // PUT: api/municipalities/5/schedule
+        [HttpPut("{id}/schedule")]
+        public ActionResult<Municipality> ScheduleTax(long id, ScheduleTaxRequest scheduleTaxRequest)
+        {
+            var updatedMunicipality = _repo.ScheduleTaxMunicipality(id, scheduleTaxRequest);
+
+            return Ok(updatedMunicipality);
+        }
+
+        // POST: api/municipalities
         [HttpPost]
-        public async Task<ActionResult<Municipality>> PostMunicipality(Municipality municipality)
+        public ActionResult<Municipality> PostMunicipality(Municipality municipality)
         {
-            _context.Municipalities.Add(municipality);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("PostMunicipality", new { id = municipality.Id }, municipality);
+            var createdMunicipality = _repo.PostMunicipality(municipality);
+            return CreatedAtAction("PostMunicipality", new { id = createdMunicipality.Id }, createdMunicipality);
         }
 
-        // DELETE: api/Municipalities/5
+        // DELETE: api/municipalities/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Municipality>> DeleteMunicipality(long id)
+        public ActionResult DeleteMunicipality(long id)
         {
-            var municipality = await _context.Municipalities.FindAsync(id);
-            if (municipality == null)
-            {
-                return NotFound();
-            }
-
-            _context.Municipalities.Remove(municipality);
-            await _context.SaveChangesAsync();
-
-            return municipality;
-        }
-
-        private bool MunicipalityExists(long id)
-        {
-            return _context.Municipalities.Any(e => e.Id == id);
+            _repo.DeleteMunicipality(id);
+            return NoContent();
         }
     }
 }

@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using tax_manager.model;
+using tax_manager.Repositories;
+using tax_manager.Controllers;
 
 namespace tax_manager
 {
@@ -20,6 +22,7 @@ namespace tax_manager
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<TaxManagerContext>(opt => opt.UseInMemoryDatabase("TaxManager"));
+            services.AddScoped<IMunicipalityRespository, MunicipalityRepository>();
             services.AddControllers();
         }
 
