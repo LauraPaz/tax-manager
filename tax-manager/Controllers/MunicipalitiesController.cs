@@ -22,11 +22,12 @@ namespace tax_manager.Controllers
             _repo = repo;
         }
 
-        // GET: api/municipalities/test
-        [HttpGet("test")]
-        public ActionResult<Municipality> GetTest()
+        // GET: api/municipalities/load-file
+        [HttpGet("load-file")]
+        public ActionResult<List<Municipality>> LoadFromFile()
         {
-            return Ok(_repo.GetTest());
+            _repo.LoadFromFile("Data.csv");
+            return GetMunicipalities();
         }
 
         // GET: api/municipalities
@@ -36,7 +37,7 @@ namespace tax_manager.Controllers
             return Ok(_repo.GetMunicipalities());
         }
 
-        // GET: api/municipalities/5
+        // GET: api/municipalities/1
         [HttpGet("{id}")]
         public ActionResult<Municipality> GetMunicipality(long id)
         {
@@ -45,30 +46,38 @@ namespace tax_manager.Controllers
             return Ok(municipality);
         }
 
-        // PUT: api/municipalities/5
-        [HttpPut("{id}")]
-        public ActionResult<Municipality> PutMunicipality(long id, Municipality municipality)
+        // GET: api/municipalities/copenhagen/2020-10-13
+        [HttpGet("{name}/{date}")]
+        public ActionResult<float> GetTaxInfo(string name, DateTime date)
         {
-            var updatedMunicipality = _repo.PutMunicipality(id, municipality);
+            var result = _repo.GetTaxInfo(name, date);
+
+            return Ok(result);
+        }
+
+        // PUT: api/municipalities/1/update
+        [HttpPut("{id}/update")]
+        public ActionResult<Municipality> UpdateMunicipality(long id, UpdateMunicipalityRequest request)
+        {
+            var updatedMunicipality = _repo.UpdateMunicipality(id, request);
 
             return Ok(updatedMunicipality);
         }
 
-        // PUT: api/municipalities/5/schedule
-        [HttpPut("{id}/schedule")]
-        public ActionResult<Municipality> ScheduleTax(long id, ScheduleTaxRequest scheduleTaxRequest)
+        // PUT: api/municipalities
+        [HttpPut("{id}")]
+        public ActionResult<Municipality> ScheduleTaxMunicipality(long id, ScheduleTaxRequest request)
         {
-            var updatedMunicipality = _repo.ScheduleTaxMunicipality(id, scheduleTaxRequest);
-
+            var updatedMunicipality = _repo.ScheduleTaxMunicipality(id, request);
             return Ok(updatedMunicipality);
         }
 
         // POST: api/municipalities
         [HttpPost]
-        public ActionResult<Municipality> PostMunicipality(Municipality municipality)
+        public ActionResult<Municipality> CreateMunicipality(Municipality municipality)
         {
-            var createdMunicipality = _repo.PostMunicipality(municipality);
-            return CreatedAtAction("PostMunicipality", new { id = createdMunicipality.Id }, createdMunicipality);
+            var createdMunicipality = _repo.CreateMunicipality(municipality);
+            return CreatedAtAction("CreateMunicipality", new { id = createdMunicipality.Id }, createdMunicipality);
         }
 
         // DELETE: api/municipalities/5

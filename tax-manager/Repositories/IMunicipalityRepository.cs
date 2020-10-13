@@ -8,12 +8,13 @@ namespace tax_manager.Repositories
 {
     public interface IMunicipalityRespository
     {
-        public Municipality GetTest();
         public List<Municipality> GetMunicipalities();
         public Municipality GetMunicipality(long id);
-        public Municipality PutMunicipality(long id, Municipality municipality);
-        public Municipality ScheduleTaxMunicipality(long id, ScheduleTaxRequest scheduleTaxRequest);
-        public Municipality PostMunicipality(Municipality municipality);
+        public float GetTaxInfo(string name, DateTime date);
+        public Municipality UpdateMunicipality(long id, UpdateMunicipalityRequest request);
+        public Municipality ScheduleTaxMunicipality(long id, ScheduleTaxRequest request);
+        public Municipality CreateMunicipality(Municipality municipality);
         public void DeleteMunicipality(long id);
+        public void LoadFromFile(string fileName);
     }
 }

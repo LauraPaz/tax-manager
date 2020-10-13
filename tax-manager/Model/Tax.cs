@@ -23,5 +23,10 @@ namespace tax_manager
             this.FinalDate = FinalDate;
         }
         public Tax() {}
+
+        public bool Equals(Tax otherTax)
+        {
+            return this.Value == otherTax.Value && this.InitialDate.Equals(otherTax.InitialDate) && this.FinalDate.Equals(otherTax.FinalDate);
+        }
     }
 }
