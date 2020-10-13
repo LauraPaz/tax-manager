@@ -167,6 +167,9 @@ namespace tax_manager.Controllers
 
         public Municipality CreateMunicipality(CreateMunicipalityRequest request)
         {
+            if (_context.Municipalities.Any(m => m.Name.ToLower().Equals(request.Name.ToLower())))
+                throw new BadRequestException("A municipality with name: " + request.Name + " already exists.");
+
             Municipality municipality = new Municipality(request.Name, new List<Tax>(), new List<Tax>(), new List<Tax>(), new List<Tax>());
             foreach (var item in request.YearlyTaxes)
                 municipality.YearlyTaxes = InsertTaxIntoList(municipality.YearlyTaxes, item);
@@ -218,32 +221,8 @@ namespace tax_manager.Controllers
                     municipality = _context.Municipalities.FirstOrDefault(m => m.Name.ToLower().Equals(values[0].ToLower()));
                     if (municipality == null)
                         municipality = CreateMunicipality(new CreateMunicipalityRequest(values[0], new List<Tax>(), new List<Tax>(), new List<Tax>(), new List<Tax>()));
-                    
-                    switch (char.Parse(values[1]))
-                    {
-                        case 'Y':
-                            municipality.YearlyTaxes =
-                                InsertTaxIntoList(municipality.YearlyTaxes,
-                                    new Tax(float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
-                            break;
-                        case 'M':
-                            municipality.MonthlyTaxes =
-                                InsertTaxIntoList(municipality.MonthlyTaxes,
-                                    new Tax(float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
-                            break;
-                        case 'W':
-                            municipality.WeeklyTaxes =
-                                InsertTaxIntoList(municipality.WeeklyTaxes,
-                                    new Tax(float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
-                            break;
-                        case 'D':
-                            municipality.DailyTaxes =
-                                InsertTaxIntoList(municipality.DailyTaxes,
-                                    new Tax(float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
-                            break;
-                        default:
-                            throw new BadRequestException("Invalid tax type provided.");
-                    }
+
+                    ScheduleTaxMunicipality(municipality.Id, new ScheduleTaxRequest(char.Parse(values[1]), float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
                 }
             }
             catch (FileNotFoundException e) 

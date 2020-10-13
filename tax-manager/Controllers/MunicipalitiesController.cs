@@ -1,14 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using tax_manager;
 using tax_manager.Exceptions;
-using tax_manager.model;
 using tax_manager.Repositories;
 
 namespace tax_manager.Controllers
@@ -24,8 +17,8 @@ namespace tax_manager.Controllers
             _repo = repo;
         }
 
-        // GET: municipalities/load-file
-        [HttpGet("load-file")]
+        // POST: municipalities/load-file
+        [HttpPost("load-file")]
         public ActionResult<List<Municipality>> LoadFromFile()
         {
             try
@@ -117,8 +110,8 @@ namespace tax_manager.Controllers
             }
         }
 
-        // PUT: municipalities/1/update
-        [HttpPut("{id}/update")]
+        // PUT: municipalities/1
+        [HttpPut("{id}")]
         public ActionResult<Municipality> UpdateMunicipality(long id, UpdateMunicipalityRequest request)
         {
             try 
@@ -140,8 +133,8 @@ namespace tax_manager.Controllers
             }
         }
 
-        // PUT: municipalities
-        [HttpPut("{id}")]
+        // PUT: municipalities/1/schedule-tax
+        [HttpPut("{id}/schedule-tax")]
         public ActionResult<Municipality> ScheduleTaxMunicipality(long id, ScheduleTaxRequest request)
         {
             try

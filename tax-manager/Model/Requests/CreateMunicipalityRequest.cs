@@ -5,7 +5,7 @@ namespace tax_manager
 {
     public class CreateMunicipalityRequest
     {
-        [Required]
+        [Required(ErrorMessage = "For a municipality to be created, its name must be provided.")]
         public string Name { get; set; }
         public List<Tax> YearlyTaxes { get; set; }
         public List<Tax> MonthlyTaxes { get; set; }
