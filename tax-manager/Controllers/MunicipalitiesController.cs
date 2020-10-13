@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using tax_manager;
+using tax_manager.Exceptions;
 using tax_manager.model;
 using tax_manager.Repositories;
 
 namespace tax_manager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class MunicipalitiesController : ControllerBase
     {
         private readonly IMunicipalityRespository _repo;
@@ -22,70 +24,184 @@ namespace tax_manager.Controllers
             _repo = repo;
         }
 
-        // GET: api/municipalities/load-file
+        // GET: municipalities/load-file
         [HttpGet("load-file")]
         public ActionResult<List<Municipality>> LoadFromFile()
         {
-            _repo.LoadFromFile("Data.csv");
+            try
+            {
+                _repo.LoadFromFile("Data.csv");
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+
             return GetMunicipalities();
         }
 
-        // GET: api/municipalities
+        // GET: municipalities
         [HttpGet]
         public ActionResult<List<Municipality>> GetMunicipalities()
         {
-            return Ok(_repo.GetMunicipalities());
+            try
+            {
+                return Ok(_repo.GetMunicipalities());
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+
         }
 
-        // GET: api/municipalities/1
+        // GET: municipalities/1
         [HttpGet("{id}")]
         public ActionResult<Municipality> GetMunicipality(long id)
         {
-            var municipality = _repo.GetMunicipality(id);
-
-            return Ok(municipality);
+            try
+            {
+                var municipality = _repo.GetMunicipality(id);
+                return Ok(municipality);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        // GET: api/municipalities/copenhagen/2020-10-13
+        // GET: municipalities/copenhagen/2020-10-13
         [HttpGet("{name}/{date}")]
         public ActionResult<float> GetTaxInfo(string name, DateTime date)
         {
-            var result = _repo.GetTaxInfo(name, date);
-
-            return Ok(result);
+            try
+            {
+                var result = _repo.GetTaxInfo(name, date);
+                return Ok(result);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        // PUT: api/municipalities/1/update
+        // PUT: municipalities/1/update
         [HttpPut("{id}/update")]
         public ActionResult<Municipality> UpdateMunicipality(long id, UpdateMunicipalityRequest request)
         {
-            var updatedMunicipality = _repo.UpdateMunicipality(id, request);
-
-            return Ok(updatedMunicipality);
+            try 
+            { 
+                var updatedMunicipality = _repo.UpdateMunicipality(id, request);
+                return Ok(updatedMunicipality);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        // PUT: api/municipalities
+        // PUT: municipalities
         [HttpPut("{id}")]
         public ActionResult<Municipality> ScheduleTaxMunicipality(long id, ScheduleTaxRequest request)
         {
-            var updatedMunicipality = _repo.ScheduleTaxMunicipality(id, request);
-            return Ok(updatedMunicipality);
+            try
+            {
+                var updatedMunicipality = _repo.ScheduleTaxMunicipality(id, request);
+                return Ok(updatedMunicipality);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        // POST: api/municipalities
+        // POST: municipalities
         [HttpPost]
-        public ActionResult<Municipality> CreateMunicipality(Municipality municipality)
+        public ActionResult<Municipality> CreateMunicipality(CreateMunicipalityRequest municipality)
         {
-            var createdMunicipality = _repo.CreateMunicipality(municipality);
-            return CreatedAtAction("CreateMunicipality", new { id = createdMunicipality.Id }, createdMunicipality);
+            try 
+            {
+                var createdMunicipality = _repo.CreateMunicipality(municipality);
+                return CreatedAtAction("CreateMunicipality", new { id = createdMunicipality.Id }, createdMunicipality);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        // DELETE: api/municipalities/5
+        // DELETE: municipalities/1
         [HttpDelete("{id}")]
         public ActionResult DeleteMunicipality(long id)
         {
-            _repo.DeleteMunicipality(id);
-            return NoContent();
+            try { 
+                _repo.DeleteMunicipality(id);
+                return NoContent();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
     }
 }
