@@ -17,8 +17,8 @@ namespace tax_manager.Controllers
             _repo = repo;
         }
 
-        // POST: municipalities/load-file
-        [HttpPost("load-file")]
+        // GET: municipalities/load-file
+        [HttpGet("load-file")]
         public ActionResult<List<Municipality>> LoadFromFile()
         {
             try
