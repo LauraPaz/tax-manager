@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace tax_manager_consumer
@@ -21,17 +25,24 @@ namespace tax_manager_consumer
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             Console.WriteLine("HOLA");
+            HttpResponseMessage response = new HttpResponseMessage();
 
             try
             {
-                HttpResponseMessage response = await client.GetAsync("1");
-                Console.WriteLine(response.StatusCode);
-
+                Console.WriteLine($"\n------------ 1. Load data from file --------------------");
                 response = await client.GetAsync("load-file");
-                Console.WriteLine(response.StatusCode);
+                Console.WriteLine($"Status: {response.StatusCode}\nResponse:");
+                Console.WriteLine(JsonConvert.SerializeObject(response.Content.ReadAsAsync<List<Municipality>>().Result, Formatting.Indented));
 
-                response = await client.GetAsync("1");
-                Console.WriteLine(response.StatusCode);
+                Console.WriteLine($"\n------------ 2. Manually insert new municipality -------");
+                response = await client.PostAsJsonAsync("", new CreateMunicipalityRequest("Aarhus", new List<Tax>(), new List<Tax>(), new List<Tax>(), new List<Tax>()));
+                Console.WriteLine($"Status: {response.StatusCode}\nResponse:");
+                Console.WriteLine(JsonConvert.SerializeObject(response.Content.ReadAsAsync<Municipality>().Result, Formatting.Indented));
+
+                Console.WriteLine($"\n------------ 3. Schedule yearly tax --------------------");
+                response = await client.PutAsJsonAsync("2/schedule-tax", new ScheduleTaxRequest('Y', 0.2f, DateTime.Parse("2020-01-01"), DateTime.Parse("2020-12-31")));
+                Console.WriteLine($"Status: {response.StatusCode}\nResponse:");
+                Console.WriteLine(JsonConvert.SerializeObject(response.Content.ReadAsAsync<Municipality>().Result, Formatting.Indented));
 
             }
             catch (Exception e)
