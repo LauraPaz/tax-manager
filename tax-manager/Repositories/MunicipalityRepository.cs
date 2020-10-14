@@ -7,6 +7,7 @@ using tax_manager.Repositories;
 using tax_manager.Exceptions;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace tax_manager.Controllers
 {
@@ -125,22 +126,26 @@ namespace tax_manager.Controllers
 
             switch (request.Type)
             {
-                case 'Y':
+                case 'Y' :
+                case 'y' :
                     municipality.YearlyTaxes = 
                         InsertTaxIntoList(municipality.YearlyTaxes, 
                             new Tax(request.Value.Value, request.InitialDate.Value, request.FinalDate.Value));
                     break;
                 case 'M':
+                case 'm':
                     municipality.MonthlyTaxes =
                         InsertTaxIntoList(municipality.MonthlyTaxes,
                             new Tax(request.Value.Value, request.InitialDate.Value, request.FinalDate.Value));
                     break;
                 case 'W':
+                case 'w':
                     municipality.WeeklyTaxes =
                         InsertTaxIntoList(municipality.WeeklyTaxes,
                             new Tax(request.Value.Value, request.InitialDate.Value, request.FinalDate.Value));
                     break;
                 case 'D':
+                case 'd':
                     municipality.DailyTaxes =
                         InsertTaxIntoList(municipality.DailyTaxes,
                             new Tax(request.Value.Value, request.InitialDate.Value, request.FinalDate.Value));
@@ -214,7 +219,7 @@ namespace tax_manager.Controllers
 
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    values = line.Split(";");
+                    values = line.Split(';');
                     if (values.Length != 5)
                         throw new BadRequestException("Unexpected file format");
                     
@@ -222,7 +227,7 @@ namespace tax_manager.Controllers
                     if (municipality == null)
                         municipality = CreateMunicipality(new CreateMunicipalityRequest(values[0], new List<Tax>(), new List<Tax>(), new List<Tax>(), new List<Tax>()));
 
-                    ScheduleTaxMunicipality(municipality.Id, new ScheduleTaxRequest(char.Parse(values[1]), float.Parse(values[2]), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
+                    ScheduleTaxMunicipality(municipality.Id, new ScheduleTaxRequest(char.Parse(values[1]), float.Parse(values[2], CultureInfo.InvariantCulture.NumberFormat), DateTime.Parse(values[3]), DateTime.Parse(values[4])));
                 }
             }
             catch (FileNotFoundException e) 
